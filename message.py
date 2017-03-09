@@ -26,7 +26,7 @@ def gen_post_data():
 
     contactJson = {
         "receiveUserCode": "",
-        "receiveUserName": "廖志强",
+        "receiveUserName": "",
         "receiveUserPhone": "15607444616",
         "smsScheduler": "",
         "sendMessageValue": "0"
@@ -41,12 +41,10 @@ def gen_post_data():
 
 
 def send_message(session):
-    # 构造Post数据，他也是从抓大的包里分析得出的。
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     postData = gen_post_data()
     r = session.post(SEND_MASSAGE_API, data=postData, headers=headers)
     print(r.content.decode())
-    print(r.status_code)
 
 
 def login(username, password):
@@ -62,10 +60,7 @@ def login(username, password):
 
     login_url = 'http://10.72.66.180/rone/login'
     sss = requests.Session()
-    r = sss.post(login_url, data=data)
-
-    print(r.content.decode())
-    print(r.headers)
+    sss.post(login_url, data=data)
 
     return sss
 
