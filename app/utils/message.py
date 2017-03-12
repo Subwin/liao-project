@@ -68,6 +68,8 @@ class LoginWorker(object):
         self.j_password = password
 
         page = session.post(HOST + LOGIN, data=self.__dict__)
+        print(page.text)
+        print(page.status_code)
         m = re.search(r'LTPAToken=(.*)"', page.text)
         return m.group(1)
 
@@ -102,5 +104,5 @@ class SendMessageWorker(object):
 
 
 if __name__ == "__main__":
-    worker = SendMessageWorker('liaozqhh', 'yx123456lzq')
-    worker.send_message('hello world', '15607444616')
+    worker = SendMessageWorker('liaozqhh1', 'yx123456lzq')
+    # worker.send_message('hello world', '15607444616')
