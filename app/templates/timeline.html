@@ -6,67 +6,106 @@
     <script src="/static/js/jquery-3.0.0.min.js"></script>
     <script src="/static/js/api.js"></script>
     <script>
-        var insertTweet = function(tweet) {
-            var t = tweet;
-            var template = `
-                ${t.created_time} : ${t.content}
-                <a href="/tweet/update/${t.id}">编辑</a>
-                <a href="/tweet/delete/${t.id}">删除</a>
-            `;
-            $('#id-div-tweets').append(template);
-        };
+        //        var insertTweet = function(tweet) {
+        //            var t = tweet;
+        //            var template = `
+        //                ${t.created_time} : ${t.content}
+        //                <a href="/tweet/update/${t.id}">编辑</a>
+        //                <a href="/tweet/delete/${t.id}">删除</a>
+        //            `;
+        //            $('#id-div-tweets').append(template);
+        //        };
+        //
+        //        var addNewTweet = function() {
+        //            var form = {
+        //                'content': $('#id-input-tweet').val()
+        //            };
+        //            var success = function (r) {
+        //                log('login, ', r);
+        //                if(r.success) {
+        //                    insertTweet(r.data);
+        //                } else {
+        //                    log(r.message);
+        //                }
+        //            };
+        //            var error = function (err) {
+        //                log(err);
+        //            };
+        //            vip.tweetAdd(form, success, error);
+        //        };
+        //
+        //        var bindActions = function() {
+        //            $('#id-button-tweet-add').on('click', function(){
+        //                addNewTweet();
+        //            });
+        //        };
+        //
+        //        var __main = function() {
+        //            bindActions();
+        //        };
+        //
+        //        $(document).ready(function() {
+        //            __main();
+        //        });
+        var upload = function (file) {
+            // 要用一个 formdata 对象来装 file
+            var fd = new FormData();
+            fd.append('uploaded', file);
 
-        var addNewTweet = function() {
-            var form = {
-                'content': $('#id-input-tweet').val()
-            };
-            var success = function (r) {
-                log('login, ', r);
-                if(r.success) {
-                    insertTweet(r.data);
-                } else {
-                    log(r.message);
+            $.ajax({
+                url: '/upload',
+                method: 'post',
+                // 下面这两个选项一定要加上
+                contentType: false,
+                processData: false,
+                data: fd,
+                success: function (r) {
+                    console.log('上传成功', file.name);
+                    alert(r.message)
+                },
+                error: function () {
+                    console.log('上传失败', file.name);
                 }
-            };
-            var error = function (err) {
-                log(err);
-            };
-            vip.tweetAdd(form, success, error);
-        };
-
-        var bindActions = function() {
-            $('#id-button-tweet-add').on('click', function(){
-                addNewTweet();
             });
         };
 
-        var __main = function() {
-            bindActions();
-        };
-
-        $(document).ready(function() {
-            __main();
+        $(document).ready(function () {
+            $('#id-button-upload').on('click', function () {
+                var fileTag = $('#id-input-file')[0];
+                var files = fileTag.files;
+                var numberOfFiles = files.length;
+                if (numberOfFiles == 0) {
+                    alert('还没有选中文件');
+                } else {
+                    for (var i = 0; i < numberOfFiles; i++) {
+                        var file = files[i];
+                        console.log('上传的文件: ', file.name);
+                        upload(file);
+                    }
+                }
+            });
         });
     </script>
 </head>
 <body>
-    <!-- 这里的 none 是小写，因为这是 jinja2 模板的语法-->
-    {% if user is not none %}
-    <p>{{ user.username }}</p>
-    <p>{{ user.id }}</p>
-    <textarea id="id-input-tweet" class="form-control" placeholder="说点啥"></textarea>
-    <br>
-    <button id="id-button-tweet-add" class="pure-button pure-button-primary">发新微博</button>
-    {% endif %}
+<!-- 这里的 none 是小写，因为这是 jinja2 模板的语法-->
+{% if user %}
+<p>你好，{{ user.username }}</p>
+<div class="file-wrapper">
+    <!-- 指定 multiple 可以上传多个文件 -->
+    <input id="id-input-file" multiple type="file">
+    <button id="id-button-upload">上传csv</button>
+</div>
+{% endif %}
 
-    <div id="id-div-tweets">
-    {% for t in user.tweets %}
-        <p>
-            {{ t.created_time }} : {{ t.content }}
-            <a href="/tweet/update/{{t.id}}">编辑</a>
-            <a href="/tweet/delete/{{t.id}}">删除</a>
-        </p>
-    {% endfor %}
-    </div>
+<!--<div id="id-div-tweets">-->
+<!--{% for t in user.tweets %}-->
+<!--<p>-->
+<!--{{ t.created_time }} : {{ t.content }}-->
+<!--<a href="/tweet/update/{{t.id}}">编辑</a>-->
+<!--<a href="/tweet/delete/{{t.id}}">删除</a>-->
+<!--</p>-->
+<!--{% endfor %}-->
+<!--</div>-->
 </body>
 </html>

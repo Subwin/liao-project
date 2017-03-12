@@ -7,6 +7,9 @@ from flask import session
 from flask import Blueprint
 
 from ..models import User
+from ..utils.message import (
+    SendMessageWorker,
+)
 
 
 # blue 用来给 app 导入, 在本文件中添加路由函数
@@ -37,30 +40,30 @@ def login_view():
 
 
 # 处理注册的请求  POST
-@blue.route('/register', methods=['POST'])
-def register():
-    print('register')
-    form = request.get_json()
-    u = User(form)
-    print('register 2')
-    r = {
-        'success': True
-    }
-    status, msgs = u.register_validate()
-    if status:
-        print("register success", form)
-        # 保存到数据库
-        u.gid = 10
-        u.save()
-        r['success'] = True
-        r['next'] = request.args.get('next', url_for('controllers.timeline_view'))
-        session.permanent = True
-        session['username'] = u.username
-    else:
-        print('register failed', form)
-        r['success'] = False
-        r['message'] = '\n'.join(msgs)
-    return jsonify(r)
+# @blue.route('/register', methods=['POST'])
+# def register():
+#     print('register')
+#     form = request.get_json()
+#     u = User(form)
+#     print('register 2')
+#     r = {
+#         'success': True
+#     }
+#     status, msgs = u.register_validate()
+#     if status:
+#         print("register success", form)
+#         # 保存到数据库
+#         u.gid = 10
+#         u.save()
+#         r['success'] = True
+#         r['next'] = request.args.get('next', url_for('controllers.timeline_view'))
+#         session.permanent = True
+#         session['username'] = u.username
+#     else:
+#         print('register failed', form)
+#         r['success'] = False
+#         r['message'] = '\n'.join(msgs)
+#     return jsonify(r)
 
 
 # 处理登录请求  POST
@@ -68,19 +71,28 @@ def register():
 def login():
     form = request.get_json()
     username = form.get('username', '')
+    password = form.get('password', '')
     user = User.user_by_name(username)
 
-    print('user login', user, form)
     r = {
         'success': False,
         'message': '登录失败',
     }
-    if user is not None and user.validate_auth(form):
-        r['success'] = True
-        r['next'] = request.args.get('next', url_for('controllers.timeline_view'))
-        session.permanent = True
-        session['username'] = username
-    else:
-        r['success'] = False
-        r['message'] = '登录失败'
+
+    if not user:
+        try:
+            SendMessageWorker(username, password)
+        except Exception as e:
+            r['message'] = str(e)
+            return jsonify(r)
+        new_user = User(username=username, password=password)
+        new_user.save()
+
+
+    r['success'] = True
+    r['message'] = '登陆成功'
+    r['next'] = request.args.get('next', url_for('controllers.timeline_view'))
+    session.permanent = True
+    session['username'] = username
+
     return jsonify(r)

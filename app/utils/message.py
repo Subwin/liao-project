@@ -20,7 +20,6 @@ class ParamsJson(object):
     smsContent = ''
 
     def get_params(self, page):
-        # print(page.text)
         tree = html.fromstring(page.text)
         parsed_tree = tree.xpath('//*[@id="divSelGroup"]/table/tr/td/input')
 
@@ -68,8 +67,10 @@ class LoginWorker(object):
         self.j_password = password
 
         page = session.post(HOST + LOGIN, data=self.__dict__)
-        print(page.text)
-        print(page.status_code)
+        if '登录系统失败' in page.text:
+            e = re.search(r'登录系统失败:(.*)</div>', page.text)
+            raise Exception(e.group(1))
+
         m = re.search(r'LTPAToken=(.*)"', page.text)
         return m.group(1)
 
@@ -91,7 +92,7 @@ class SendMessageWorker(object):
         self.params_json.get_params(page)
 
 
-    def send_message(self, sms_content, receiver_phone):
+    def send_message(self, receiver_phone, sms_content):
         self.params_json.smsContent = sms_content
         self.contact_json.receiveUserPhone = receiver_phone
         data = dict(
@@ -104,5 +105,5 @@ class SendMessageWorker(object):
 
 
 if __name__ == "__main__":
-    worker = SendMessageWorker('liaozqhh1', 'yx123456lzq')
-    # worker.send_message('hello world', '15607444616')
+    worker = SendMessageWorker('liaozqhh', 'yx123456lzq')
+    worker.send_message('hello world', '15607444616')
