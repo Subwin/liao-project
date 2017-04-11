@@ -39,8 +39,10 @@ def upload_file():
     if not file:
         return '<h1>没有上传</h1>'
 
-
-    stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+    content = file.stream.read()
+    print(type(content))
+    print(content)
+    stream = io.StringIO(content.decode('GBK'), newline=None)
     csv_input = csv.reader(stream)
 
     for row in csv_input:
