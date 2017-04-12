@@ -14,6 +14,7 @@ def rebuild_db():
 def run():
     config = dict(
         debug=True,
+        host='0.0.0.0'
     )
     init_app().run(**config)
 
