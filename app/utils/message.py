@@ -101,9 +101,10 @@ class SendMessageWorker(object):
         )
         data = urllib.parse.urlencode(data)
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        self.session.post(HOST+SEND_MASSAGE, data=data, headers=headers)
+        ret = self.session.post(HOST+SEND_MASSAGE, data=data, headers=headers)
+        print(ret)
 
 
 if __name__ == "__main__":
     worker = SendMessageWorker('liaozqhh', 'yx123456lzq')
-    worker.send_message('hello world', '15607444616')
+    worker.send_message('15607444616', 'hello world')
